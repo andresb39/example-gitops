@@ -7,4 +7,4 @@ resources:
 namespace: aws-example-octodex
 images:
 - name: 794039383763.dkr.ecr.us-east-1.amazonaws.com/lab-flux
-  newTag: e973a3141e3c499f60b7685f9635089638feea6c
+  newTag: 15326fe4a644fb0cf2c9715e72cf4d89d0cfb43a
