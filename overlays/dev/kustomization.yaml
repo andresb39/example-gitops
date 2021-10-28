@@ -1,0 +1,11 @@
+namePrefix: dev-
+commonLabels:
+  variant: dev
+bases:
+- ../../base
+patchesStrategicMerge:
+- ingress.yaml
+
+images:
+- name: 794039383763.dkr.ecr.us-east-1.amazonaws.com/lab-flux
+  newTag: ec5e31617321f2370155c30f6c6804a07853e4a7
