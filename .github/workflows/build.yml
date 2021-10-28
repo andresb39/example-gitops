@@ -71,7 +71,10 @@ jobs:
 
     - name: Update Kubernetes resources
       run: |
-       cd kustomize/base
+       cd overlays/dev
+       kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+       cat kustomization.yaml
+       cd overlays/prod
        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
        cat kustomization.yaml
         

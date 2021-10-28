@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aws-example-octodex
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: prod-octodex.k8s.lab.miaguila.com
+    external-dns.alpha.kubernetes.io/ttl: "30"
+    cert-manager.io/cluster-issuer: acme-staging
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+spec:
+  rules:
+  - host: prod-octodex.k8s.lab.miaguila.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: aws-example-octodex
+            port:
+              number: 8080
+  tls:
+  - hosts:
+    - prod-octodex.k8s.lab.miaguila.com
+    secretName: octodex-cert

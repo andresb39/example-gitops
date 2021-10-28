@@ -1,0 +1,7 @@
+commonLabels:
+  app: octodex
+
+resources:
+  - deployment.yaml
+  - ingress.yaml
+  - service.yaml
