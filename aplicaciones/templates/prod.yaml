@@ -4,7 +4,7 @@ kind: Application
 metadata:
   annotations:
     notifications.argoproj.io/subscribe.on-sync-succeeded.slack: deploys
-  name: prod
+  name: octodex-prod
   namespace: argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
