@@ -6,7 +6,7 @@ patchesStrategicMerge:
 
 images:
 - name: 794039383763.dkr.ecr.us-east-1.amazonaws.com/lab-flux
-  newTag: 102d69703bf6399e71bc0df73c601c43b88cd014
+  newTag: ad16e6e81b370bf09b2e0a981ff3079dbf249a5c
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
