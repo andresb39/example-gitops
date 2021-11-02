@@ -40,8 +40,10 @@ jobs:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build-and-push:
+    
     name: Build and Push
     runs-on: ubuntu-latest
+    needs: sonarqube
     steps:
 
     - name: Checkout
