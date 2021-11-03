@@ -22,8 +22,8 @@ jobs:
 
       - name: result in    
         run: |
-          echo "Check result in https://sonar.k8s.lab.miaguila.com"
-          
+          echo 'Check result in https://sonar.k8s.lab.miaguila.com'
+
       - uses: sonarsource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
         env:
