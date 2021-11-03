@@ -23,6 +23,6 @@ jobs:
       - uses: sonarsource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          scanMetadataReportFile: target/sonar/report-task.txt
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}ß  
+        run: |
+          echo "Check result in https://sonar.k8s.lab.miaguila.com"
