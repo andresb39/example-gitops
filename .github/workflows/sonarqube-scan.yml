@@ -15,23 +15,39 @@ on:
 jobs:
   Scan-Build:
     # Scan runs on ubuntu, mac and windows
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
+    #runs-on: ubuntu-latest
+    #steps:
+    #- uses: actions/checkout@v2
     # Instructions
     # 1. Setup JDK, Node.js, Python etc depending on your project type
     # 2. Compile or build the project before invoking scan
     #    Example: mvn compile, or npm install or pip install goes here
     # 3. Invoke Scan with the github token. Leave the workspace empty to use relative url
 
-    - name: Perform Scan
-      uses: ShiftLeftSecurity/scan-action@master
-      env:
-        WORKSPACE: ""
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SCAN_AUTO_BUILD: true
-      with:
-        output: reports
+    #- name: Perform Scan
+    #  uses: ShiftLeftSecurity/scan-action@master
+    #  env:
+    #    WORKSPACE: ""
+    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #    SCAN_AUTO_BUILD: true
+    name: checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      - uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          output: reports
         # Scan auto-detects the languages in your project. To override uncomment the below variable and set the type
         # type: credscan,java
         # type: python
