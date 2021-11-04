@@ -117,7 +117,7 @@ jobs:
         destination-github-username: 'andresb39'
         destination-repository-name: 'gitops-infra'
         user-email: action@github.com
-        commit-message: Kustomize change image tag ${GITHUB_SHA::7}
+        commit-message: "Kustomize change image tag ${GITHUB_SHA::7}"
         target-branch: master
     - name: Test get variable exported by push-to-another-repository
       run: echo $DESTINATION_CLONED_DIRECTORY
