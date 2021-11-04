@@ -2,10 +2,15 @@ name: Sonarqube
 
 on:
   push:
+    paths:
+    - app/**
     branches:
       - master
+      - dev
   pull_request:
       types: [opened, synchronize, reopened]
+      paths:
+      - app/**
 
 jobs:
   Sonarqube:
