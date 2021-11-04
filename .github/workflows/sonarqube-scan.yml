@@ -20,13 +20,12 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
-          args: >
-            -Dsonar.python.coverage.reportPaths=coverage.xml
+          projectBaseDir: ./app
 
       - name: Upload report
         uses: github/codeql-action/upload-sarif@v1
         with:
-          sarif_file:  coverage.xml      
+          sarif_file:  build/reports/jacoco/test/jacocoTestReport.xml      
 
       - uses: sonarsource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
