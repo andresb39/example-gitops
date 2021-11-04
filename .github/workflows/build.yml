@@ -1,8 +1,15 @@
 # build.yml
 on:
+
+  workflow_run:
+    workflows: ["Sonarqube"]
+    types:
+      - completed
+
   pull_request:
     paths:
     - app/**
+
   push:
     paths:
     - app/**
@@ -24,7 +31,6 @@ jobs:
   build-and-push:
     
     name: Build and Push
-    needs: checks
     runs-on: ubuntu-latest
     steps:
 
