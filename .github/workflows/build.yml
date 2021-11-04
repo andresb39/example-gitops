@@ -8,6 +8,7 @@ on:
     - app/**
     branches:         # array of glob patterns matching against refs/heads. Optional; defaults to all
     - master          # triggers on pushes that contain changes in master
+    - deve
 
 name: Build and Push to ECR
 
@@ -68,12 +69,14 @@ jobs:
         kustomize-version: "3.6.1"
 
     - name: Update Dev resources
+      if : ${{ github.ref == 'refs/heads/dev' }}
       run: |
        cd overlays/dev
        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
        cat kustomization.yaml
 
     - name: Update Prod resources
+      if: ${{ github.ref == 'refs/heads/master' }}
       run: |
        cd overlays/prod
        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
