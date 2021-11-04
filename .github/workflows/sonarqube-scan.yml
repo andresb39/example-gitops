@@ -20,7 +20,7 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   CONTAINER_IMAGE: lab-flux:${{ github.sha }}
 
-  jobs:
+jobs:
   Sonarqube:
     name: checks
     runs-on: ubuntu-latest
