@@ -10,7 +10,7 @@ on:
   pull_request:
       types: [opened, synchronize, reopened]
       paths:
-      - app/**
+      - app/**      
 
 jobs:
   Sonarqube:
@@ -29,5 +29,97 @@ jobs:
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+
+  build-and-push:
+    env:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      AWS_DEFAULT_OUTPUT: json
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      CONTAINER_IMAGE: lab-flux:${{ github.sha }}
+    
+    name: Build and Push
+    runs-on: ubuntu-latest
+    needs: Sonarqube
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@master
+      with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+    - run: git branch
+    - run: env
+  
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    
+    - name: Build and tag the image
+      run: |
+        # Build and tag the image
+        docker build \
+          -t $CONTAINER_IMAGE \
+          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./app
+           
+    - name: Push
+      run: |
+        # Push image to AWS ECR
+        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    env: 
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Setup Kustomize
+      uses: imranismail/setup-kustomize@v1
+      with:
+        kustomize-version: "3.6.1"
+
+    - name: Update Dev resources
+      if : github.ref == 'refs/heads/dev'
+      run: |
+        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
+        cd gitops-infra/overlays/dev
+        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+        cat kustomization.yaml
+
+    - name: Update Prod resources
+      if: github.ref == 'refs/heads/master'
+      run: |
+        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
+        cd infra/overlays/prod
+        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+        cat kustomization.yaml
+
+    - name: Pushes to Infra Repo
+      id: push_directory
+      uses: cpina/github-action-push-to-another-repository@main
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      with:
+        source-directory: 'infra'
+        destination-github-username: 'andresb39'
+        destination-repository-name: 'gitops-infra'
+        user-email: action@github.com
+        commit-message: Kustomize change image tag ${GITHUB_SHA::7}
+        target-branch: master
+    - name: Test get variable exported by push-to-another-repository
+      run: echo $DESTINATION_CLONED_DIRECTORY
 
         
