@@ -98,7 +98,7 @@ jobs:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
         source-directory: 'infra'
-        destination-github-username: 'GitHub Action'
+        destination-github-username: 'andresb39'
         destination-repository-name: 'gitops-infra'
         user-email: action@github.com
         commit-message: Kustomize change image tag ${GITHUB_SHA::7}
