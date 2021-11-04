@@ -77,7 +77,7 @@ jobs:
     - name: Update Prod resources
       if: ${{ github.ref == 'refs/heads/master' }}
       run: |
-        git remote add infra https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra
+        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
         cd infra/overlays/prod
         kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
         cat kustomization.yaml
