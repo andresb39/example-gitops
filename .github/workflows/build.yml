@@ -82,12 +82,10 @@ jobs:
         kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
         cat kustomization.yaml
         
-    - name: Commit files
+    - name: Commit files & push
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add .
         git commit -m "Kustomize change image tag ${GITHUB_SHA::7}"
-        
-    - name: Push changes
-      uses: ad-m/github-push-action@master
+        git push
