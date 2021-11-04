@@ -82,11 +82,26 @@ jobs:
         kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
         cat kustomization.yaml
         
-    - name: Commit files & push
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/andresb39/gitops-infra
-        git add infra
-        git commit -m "Kustomize change image tag ${GITHUB_SHA::7}"
-        git push -u infra master
+    #- name: Commit files & push
+    #  run: |
+    #    git config --local user.email "action@github.com"
+    #    git config --local user.name "GitHub Action"
+    #    git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/andresb39/gitops-infra
+    #    git add infra
+    #    git commit -m "Kustomize change image tag ${GITHUB_SHA::7}"
+    #    git push -u infra master
+
+    - name: Pushes to Infra Repo
+        id: push_directory
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          source-directory: 'infra'
+          destination-github-username: 'GitHub Action'
+          destination-repository-name: 'gitops-infra'
+          user-email: action@github.com
+          commit-message: Kustomize change image tag ${GITHUB_SHA::7}
+          target-branch: main
+      - name: Test get variable exported by push-to-another-repository
+        run: echo $DESTINATION_CLONED_DIRECTORY
