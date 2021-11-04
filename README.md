@@ -1,2 +1,2 @@
-[![Sonarqube](https://github.com/andresb39/example-gitops/actions/workflows/sonarqube-scan.yml/badge.svg?branch=master)](https://github.com/andresb39/example-gitops/actions/workflows/sonarqube-scan.yml)
+[![Sonarqube Check](https://github.com/andresb39/example-gitops/actions/workflows/sonarqube-scan.yml/badge.svg?branch=master)](https://github.com/andresb39/example-gitops/actions/workflows/sonarqube-scan.yml) [![Build and Push](https://github.com/andresb39/example-gitops/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/andresb39/example-gitops/actions/workflows/build.yml)
 # example-gitops
