@@ -18,12 +18,7 @@ jobs:
       - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
-      - name: Upload report
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file:  build/reports/jacoco/test/jacocoTestReport.xml      
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}   
 
       - uses: sonarsource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
