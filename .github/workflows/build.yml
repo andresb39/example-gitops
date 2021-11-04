@@ -77,8 +77,8 @@ jobs:
     - name: Update Prod resources
       if: ${{ github.ref == 'refs/heads/master' }}
       run: |
-        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra
-        cd gitops-infra/overlays/prod
+        git remote add infra https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra
+        cd infra/overlays/prod
         kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
         cat kustomization.yaml
         
@@ -88,4 +88,4 @@ jobs:
         git config --local user.name "GitHub Action"
         git add .
         git commit -m "Kustomize change image tag ${GITHUB_SHA::7}"
-        git push
+        git push -u infra master
