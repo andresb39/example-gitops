@@ -77,25 +77,21 @@ jobs:
       with:
         kustomize-version: "3.6.1"
 
-    - name: Clone Repo
-      run: |
-
-        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra
-        cd gitops-infra
-
     - name: Update Dev resources
       if : ${{ github.ref == 'refs/heads/dev' }}
       run: |
-       cd overlays/dev
-       kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
-       cat kustomization.yaml
+        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra
+        cd gitops-infra/overlays/dev
+        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+        cat kustomization.yaml
 
     - name: Update Prod resources
       if: ${{ github.ref == 'refs/heads/master' }}
       run: |
-       cd overlays/prod
-       kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
-       cat kustomization.yaml
+        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra
+        cd gitops-infra/overlays/prod
+        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+        cat kustomization.yaml
         
     - name: Commit files
       run: |
