@@ -95,7 +95,7 @@ jobs:
       if : github.ref == 'refs/heads/dev'
       run: |
         git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
-        cd gitops-infra/overlays/dev
+        cd infra/overlays/dev
         kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
         cat kustomization.yaml
 
@@ -121,5 +121,3 @@ jobs:
         target-branch: master
     - name: Test get variable exported by push-to-another-repository
       run: echo $DESTINATION_CLONED_DIRECTORY
-
-        
