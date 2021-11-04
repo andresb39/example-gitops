@@ -45,7 +45,6 @@ jobs:
           -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./app
            
     - name: Push
-      if: github.ref == 'refs/heads/master'
       run: |
         # Push image to AWS ECR
         docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
@@ -67,7 +66,7 @@ jobs:
         kustomize-version: "3.6.1"
 
     - name: Update Dev resources
-      if : ${{ github.ref == 'refs/heads/dev' }}
+      if : github.ref == 'refs/heads/dev'
       run: |
         git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
         cd gitops-infra/overlays/dev
@@ -75,7 +74,7 @@ jobs:
         cat kustomization.yaml
 
     - name: Update Prod resources
-      if: ${{ github.ref == 'refs/heads/master' }}
+      if: github.ref == 'refs/heads/master'
       run: |
         git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
         cd infra/overlays/prod
