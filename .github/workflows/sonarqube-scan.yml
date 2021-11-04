@@ -1,16 +1,13 @@
 name: Sonarqube
 
-on:
-  push:
-    paths:
-    - app/**
-    branches:
-      - master
-      - dev
+on:    
   pull_request:
       types: [opened, synchronize, reopened]
       paths:
       - app/**    
+      branches:
+      - master
+      - dev
 
 env:
   AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
