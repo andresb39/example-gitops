@@ -86,7 +86,8 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -am "Kustomize change image tag ${GITHUB_SHA::7}"
+        git add .
+        git commit -m "Kustomize change image tag ${GITHUB_SHA::7}"
         
     - name: Push changes
       uses: ad-m/github-push-action@master
