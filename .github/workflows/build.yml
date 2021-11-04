@@ -69,7 +69,7 @@ jobs:
     - name: Update Dev resources
       if : ${{ github.ref == 'refs/heads/dev' }}
       run: |
-        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra
+        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
         cd gitops-infra/overlays/dev
         kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
         cat kustomization.yaml
@@ -81,15 +81,6 @@ jobs:
         cd infra/overlays/prod
         kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
         cat kustomization.yaml
-        
-    #- name: Commit files & push
-    #  run: |
-    #    git config --local user.email "action@github.com"
-    #    git config --local user.name "GitHub Action"
-    #    git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/andresb39/gitops-infra
-    #    git add infra
-    #    git commit -m "Kustomize change image tag ${GITHUB_SHA::7}"
-    #    git push -u infra master
 
     - name: Pushes to Infra Repo
       id: push_directory
