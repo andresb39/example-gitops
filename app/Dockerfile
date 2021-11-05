@@ -1,4 +1,6 @@
 FROM nginx:1.21.3
+LABEL VERSION="1.0" \
+      APP="octodex" 
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 

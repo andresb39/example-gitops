@@ -1,7 +1,6 @@
 #sonarqube-scan.yml
 #name: Sonarqube
 
-
 #on:
 #  pull_request:
 #      paths:
@@ -9,6 +8,7 @@
 #      branches:
 #      - master
 #      - dev
+
 
 #jobs:
 
@@ -19,7 +19,7 @@
 #      - uses: actions/checkout@v2
 #        with:
 #          fetch-depth: 0
-          
+
 #      - uses: sonarsource/sonarqube-scan-action@master
 #        env:
 #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -29,6 +29,3 @@
 #        timeout-minutes: 5
 #        env:
 #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-
-  
