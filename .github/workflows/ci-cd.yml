@@ -33,6 +33,7 @@ jobs:
       
     - name: Set vars
       run: | 
+        date -d "-5 hours" "+%Y-%m-%d_%HH%Ms%S" > DATE_TIME
         export CONTAINER_IMAGE=$(echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:$(cat DATE_TIME)-$(git rev-parse --short HEAD)")
         export CONTAINER_TAG_DEV=$(echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev_$(cat DATE_TIME)-$(git rev-parse --short HEAD)")
         export CONTAINER_TAG_PRD=$(echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod_$(cat DATE_TIME)-$(git rev-parse --short HEAD)")
