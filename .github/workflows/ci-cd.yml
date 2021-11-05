@@ -41,18 +41,17 @@ jobs:
     - name: Set containers tags
       run: | 
         date -d "-5 hours" "+%Y%m%d_%H%M%S"   > DATE_TIME
-        export CONTAINER_TAG_DEV=$(echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev_$(cat DATE_TIME)-$(git rev-parse --short HEAD)")
-        export CONTAINER_TAG_PRD=$(echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod_$(cat DATE_TIME)-$(git rev-parse --short HEAD)")
-        export CONTAINER_TAG_LATEST=$(echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:latest")
+        export CONTAINER_TAG_DEV=$(echo "lab-flux:dev_$(cat DATE_TIME)-$(git rev-parse --short HEAD)")
+        export CONTAINER_TAG_PRD=$(echo "lab-flux:prod_$(cat DATE_TIME)-$(git rev-parse --short HEAD)")
+        export CONTAINER_TAG_LATEST=$(echo "lab-flux:latest")
 
     - name: Build and push the image DEV
       if: github.ref == 'refs/heads/dev'
       run: |
         # Build and tag the image
-        docker pull $CONTAINER_TAG_LATEST || true
+        docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST || true
         docker build --pull \
-          -f app/Dockerfile
-          -t $CONTAINER_TAG_DEV .
+          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_DEV ./app
 
         # Push image to AWS ECR
         docker push $CONTAINER_TAG_DEV
@@ -64,8 +63,8 @@ jobs:
         docker pull $CONTAINER_TAG_LATEST || true
         docker build --pull \
           -f app/Dockerfile
-          -t $CONTAINER_TAG_PRD \
-          -t $CONTAINER_TAG_LATEST ./app
+          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_PRD \
+          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST ./app
 
         # Push image to AWS ECR
         docker push $CONTAINER_TAG_PRD
