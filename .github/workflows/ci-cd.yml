@@ -15,8 +15,7 @@ env:
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  CONTAINER_TAG_DEV: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev-
-  CONTAINER_TAG_PRD: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod-
+  CONTAINER_IMAGE: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux
   CONTAINER_TAG_LATEST: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:latest
 
 jobs:
@@ -43,7 +42,7 @@ jobs:
       
     - name: Set containers tags
       run: | 
-       # date -d "-5 hours" "+%Y%m%d_%H%M%S"   > DATE_TIME
+       # 
        # echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev-$(git rev-parse --short HEAD)_$(cat DATE_TIME)" > CONTAINER_TAG_DEV
        # echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod-$(git rev-parse --short HEAD)_$(cat DATE_TIME)" > CONTAINER_TAG_PRD
        # echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:latest" > CONTAINER_TAG_LATEST
@@ -54,15 +53,16 @@ jobs:
         # Build and tag the image
         docker pull $CONTAINER_TAG_LATEST || true
         docker build --pull \
-          -t $CONTAINER_TAG_DEV${GITHUB_SHA::7} ./app
+          -t CONTAINER_IMAGE:dev-${GITHUB_SHA::7} ./app
 
         # Push image to AWS ECR
-        docker push $cat CONTAINER_TAG_DEV${GITHUB_SHA::7}
+        docker push CONTAINER_IMAGE:dev-${GITHUB_SHA::7}
     
     - name: Build and push the image PROD
       if: github.ref == 'refs/heads/master'
       run: |
         # Build and tag the image
+        date -d "-5 hours" "+%Y%m%d_%H%M%S"   > DATE_TIME
         docker pull $CONTAINER_TAG_LATEST || true
         docker build --pull \
           -t $CONTAINER_TAG_PRD${GITHUB_SHA::7} \
@@ -91,17 +91,19 @@ jobs:
     - name: Update Dev resources
       if : github.ref == 'refs/heads/dev'
       run: |
+        date -d "-5 hours" "+%Y%m%d_%H%M%S"   > DATE_TIME
         git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
         cd infra/overlays/dev
-        kustomize edit set image $(cat CONTAINER_TAG_DEV)
+        kustomize edit set image cat CONTAINER_TAG_DEV
         cat kustomization.yaml
 
     - name: Update Prod resources
       if: github.ref == 'refs/heads/master'
       run: |
+        date -d "-5 hours" "+%Y%m%d_%H%M%S"   > DATE_TIME
         git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
         cd infra/overlays/prod
-        kustomize edit set image $(cat CONTAINER_TAG_PRD)
+        kustomize edit set image cat CONTAINER_TAG_PRD
         cat kustomization.yaml
 
     - name: Pushes to Infra Repo
