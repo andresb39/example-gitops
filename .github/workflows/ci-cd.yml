@@ -18,6 +18,7 @@ env:
   CONTAINER_IMAGE: lab-flux:${{ github.sha }}
   CONTAINER_TAG_DEV: lab-flux:dev-${{ github.run_number }}
   CONTAINER_TAG_PRD: lab-flux:prod-${{ github.run_number }}
+  CONTAINER_TAG_LATEST: lab-flux:latest
 
 jobs:
 
@@ -44,7 +45,8 @@ jobs:
       if: github.ref == 'refs/heads/dev'
       run: |
         # Build and tag the image
-        docker build \
+        docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST || true
+        docker build --pull \
           -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_DEV \
           -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./app
 
@@ -56,8 +58,10 @@ jobs:
       if: github.ref == 'refs/heads/master'
       run: |
         # Build and tag the image
-        docker build \
+        docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST || true
+        docker build --pull \
           -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_PRD \
+          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST \
           -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./app
 
         # Push image to AWS ECR
@@ -85,7 +89,7 @@ jobs:
       run: |
         git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
         cd infra/overlays/dev
-        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_DEV
         cat kustomization.yaml
 
     - name: Update Prod resources
@@ -93,7 +97,7 @@ jobs:
       run: |
         git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
         cd infra/overlays/prod
-        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_PRD
         cat kustomization.yaml
 
     - name: Pushes to Infra Repo
@@ -106,7 +110,7 @@ jobs:
         destination-github-username: 'andresb39'
         destination-repository-name: 'gitops-infra'
         user-email: action@github.com
-        commit-message: "Kustomize change image tag ${GITHUB_SHA::7}"
+        commit-message: Automate Kustomize Image 
         target-branch: master
     - name: Test get variable exported by push-to-another-repository
       run: echo $DESTINATION_CLONED_DIRECTORY
