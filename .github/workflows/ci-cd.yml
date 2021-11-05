@@ -37,7 +37,7 @@ jobs:
     - name: Check outputs
       run: | 
         echo ${{ steps.vars.outputs.sha_short }}
-        echo  "CONTAINER_IMAGE=$(lab-flux:${{ steps.vars.outputs.sha_short }}) >> $GITHUB_ENV
+        echo  "CONTAINER_IMAGE=$(lab-flux:${{ steps.vars.outputs.sha_short }})" >> $GITHUB_ENV
         echo $GITHUB_ENV
 
 #    - name: Configure AWS credentials
