@@ -3,7 +3,6 @@ name: Sonarqube
 
 on:
   pull_request:
-      types: [opened, synchronize, reopened]
       paths:
       - app/**   
       branches:
