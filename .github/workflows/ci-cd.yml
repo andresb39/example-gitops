@@ -53,10 +53,10 @@ jobs:
         # Build and tag the image
         docker pull $CONTAINER_TAG_LATEST || true
         docker build --pull \
-          -t CONTAINER_IMAGE:dev-${GITHUB_SHA::7} ./app
+          -t $CONTAINER_IMAGE:dev-${GITHUB_SHA::7} ./app
 
         # Push image to AWS ECR
-        docker push CONTAINER_IMAGE:dev-${GITHUB_SHA::7}
+        docker push $CONTAINER_IMAGE:dev-${GITHUB_SHA::7}
     
     - name: Build and push the image PROD
       if: github.ref == 'refs/heads/master'
