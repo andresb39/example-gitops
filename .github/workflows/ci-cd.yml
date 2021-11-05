@@ -15,7 +15,7 @@ env:
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  CONTAINER_IMAGE: lab-flux:${{GITHUB_SHA::7}}
+  #CONTAINER_IMAGE: lab-flux:${GITHUB_SHA::7}
   CONTAINER_TAG_DEV: lab-flux:dev-${{ github.run_number }}
   CONTAINER_TAG_PRD: lab-flux:prod-${{ github.run_number }}
   CONTAINER_TAG_LATEST: lab-flux:latest
@@ -25,10 +25,16 @@ jobs:
   build-and-push:
     name: Build and Push
     runs-on: ubuntu-latest
+    
 
     steps:
     - name: Checkout
       uses: actions/checkout@master
+      
+    - name: Set env
+      run: |
+        echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
+        echo "CONTAINER_IMAGE=$(lab-flux:${GITHUB_SHA_SHORT})" >> $GITHUB_ENV
   
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
