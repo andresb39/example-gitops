@@ -48,7 +48,7 @@ jobs:
     name: Build and Push
     runs-on: ubuntu-latest
     needs: Sonarqube
-    if: github.event == 'push'
+    if: github.event_name == 'push'
     
 
     steps:
