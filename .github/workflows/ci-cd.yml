@@ -33,88 +33,94 @@ jobs:
       
     - name: Set vars
       run: | 
-        export CONTAINER_IMAGE=$(echo "lab-flux:$(git rev-parse --short HEAD)")
-        
+        export CONTAINER_IMAGE=$(echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:$(cat DATE_TIME)-$(git rev-parse --short HEAD)")
+        export CONTAINER_TAG_DEV=$(echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev_$(cat DATE_TIME)-$(git rev-parse --short HEAD)")
+        export CONTAINER_TAG_PRD=$(echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod_$(cat DATE_TIME)-$(git rev-parse --short HEAD)")
+        export CONTAINER_TAG_LATEST=$(echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:latest")
+        echo $CONTAINER_TAG_DEV
+        echo $CONTAINER_TAG_PRD
+        echo $CONTAINER_TAG_LATEST
+        echo $CONTAINER_IMAGE
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_DEFAULT_REGION }}
-
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Build and push the image DEV
-      if: github.ref == 'refs/heads/dev'
-      run: |
-        # Build and tag the image
-        docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST || true
-        docker build --pull \
-          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_DEV \
-          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./app
-
-        # Push image to AWS ECR
-        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
-        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_DEV
-    
-    - name: Build and push the image PROD
-      if: github.ref == 'refs/heads/master'
-      run: |
-        # Build and tag the image
-        docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST || true
-        docker build --pull \
-          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_PRD \
-          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST \
-          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./app
-
-        # Push image to AWS ECR
-        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
-        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_PRD
-        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST
-
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    env: 
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v2
-
-    - name: Setup Kustomize
-      uses: imranismail/setup-kustomize@v1
-      with:
-        kustomize-version: "3.6.1"
-
-    - name: Update Dev resources
-      if : github.ref == 'refs/heads/dev'
-      run: |
-        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
-        cd infra/overlays/dev
-        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_DEV
-        cat kustomization.yaml
-
-    - name: Update Prod resources
-      if: github.ref == 'refs/heads/master'
-      run: |
-        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
-        cd infra/overlays/prod
-        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_PRD
-        cat kustomization.yaml
-
-    - name: Pushes to Infra Repo
-      id: push_directory
-      uses: cpina/github-action-push-to-another-repository@main
-      env:
-        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-      with:
-        source-directory: 'infra'
-        destination-github-username: 'andresb39'
-        destination-repository-name: 'gitops-infra'
-        user-email: action@github.com
-        target-branch: master
+#    - name: Configure AWS credentials
+#      uses: aws-actions/configure-aws-credentials@v1
+#      with:
+#        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+#        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+#        aws-region: ${{ env.AWS_DEFAULT_REGION }}
+#
+#    - name: Login to Amazon ECR
+#      id: login-ecr
+#      uses: aws-actions/amazon-ecr-login@v1
+#
+#    - name: Build and push the image DEV
+#      if: github.ref == 'refs/heads/dev'
+#      run: |
+#        # Build and tag the image
+#        docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST || true
+#        docker build --pull \
+#          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_DEV \
+#          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./app
+#
+#        # Push image to AWS ECR
+#        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+#        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_DEV
+#    
+#    - name: Build and push the image PROD
+#      if: github.ref == 'refs/heads/master'
+#      run: |
+#        # Build and tag the image
+#        docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST || true
+#        docker build --pull \
+#          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_PRD \
+#          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST \
+#          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./app
+#
+#        # Push image to AWS ECR
+#        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+#        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_PRD
+#        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_LATEST
+#
+#  deploy:
+#    name: Deploy
+#    runs-on: ubuntu-latest
+#    needs: build-and-push
+#    env: 
+#      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#
+#    steps:
+#    - name: Check out code
+#      uses: actions/checkout@v2
+#
+#    - name: Setup Kustomize
+#      uses: imranismail/setup-kustomize@v1
+#      with:
+#        kustomize-version: "3.6.1"
+#
+#    - name: Update Dev resources
+#      if : github.ref == 'refs/heads/dev'
+#      run: |
+#        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
+#        cd infra/overlays/dev
+#        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_DEV
+#        cat kustomization.yaml
+#
+#    - name: Update Prod resources
+#      if: github.ref == 'refs/heads/master'
+#      run: |
+#        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
+#        cd infra/overlays/prod
+#        kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_TAG_PRD
+#        cat kustomization.yaml
+#
+#    - name: Pushes to Infra Repo
+#      id: push_directory
+#      uses: cpina/github-action-push-to-another-repository@main
+#      env:
+#        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+#      with:
+#        source-directory: 'infra'
+#        destination-github-username: 'andresb39'
+#        destination-repository-name: 'gitops-infra'
+#        user-email: action@github.com
+#        target-branch: master
