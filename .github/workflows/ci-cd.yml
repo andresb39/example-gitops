@@ -15,8 +15,8 @@ env:
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  CONTAINER_TAG_DEV: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev-${GITHUB_SHA::7}
-  CONTAINER_TAG_PRD: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod-${GITHUB_SHA::7}
+  CONTAINER_TAG_DEV: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev-
+  CONTAINER_TAG_PRD: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod-
   CONTAINER_TAG_LATEST: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:latest
 
 jobs:
@@ -54,10 +54,10 @@ jobs:
         # Build and tag the image
         docker pull $CONTAINER_TAG_LATEST || true
         docker build --pull \
-          -t $CONTAINER_TAG_DEV ./app
+          -t $CONTAINER_TAG_DEV${GITHUB_SHA::7} ./app
 
         # Push image to AWS ECR
-        docker push $cat CONTAINER_TAG_DEV
+        docker push $cat CONTAINER_TAG_DEV${GITHUB_SHA::7}
     
     - name: Build and push the image PROD
       if: github.ref == 'refs/heads/master'
@@ -65,11 +65,11 @@ jobs:
         # Build and tag the image
         docker pull $CONTAINER_TAG_LATEST || true
         docker build --pull \
-          -t $CONTAINER_TAG_PRD \
+          -t $CONTAINER_TAG_PRD${GITHUB_SHA::7} \
           -t $CONTAINER_TAG_LATEST ./app
 
         # Push image to AWS ECR
-        docker push $CONTAINER_TAG_PRD
+        docker push $CONTAINER_TAG_PRD${GITHUB_SHA::7}
         docker push $CONTAINER_TAG_LATEST
 
   deploy:
