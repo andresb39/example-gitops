@@ -15,6 +15,9 @@ env:
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  CONTAINER_TAG_DEV: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev-$(git rev-parse --short HEAD)
+  CONTAINER_TAG_PRD: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod-$(git rev-parse --short HEAD)
+  CONTAINER_TAG_LATEST: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:latest
 
 jobs:
 
@@ -40,10 +43,10 @@ jobs:
       
     - name: Set containers tags
       run: | 
-        date -d "-5 hours" "+%Y%m%d_%H%M%S"   > DATE_TIME
-        echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev-$(git rev-parse --short HEAD)_$(cat DATE_TIME)" > CONTAINER_TAG_DEV
-        echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod-$(git rev-parse --short HEAD)_$(cat DATE_TIME)" > CONTAINER_TAG_PRD
-        echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:latest" > CONTAINER_TAG_LATEST
+       # date -d "-5 hours" "+%Y%m%d_%H%M%S"   > DATE_TIME
+       # echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev-$(git rev-parse --short HEAD)_$(cat DATE_TIME)" > CONTAINER_TAG_DEV
+       # echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod-$(git rev-parse --short HEAD)_$(cat DATE_TIME)" > CONTAINER_TAG_PRD
+       # echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:latest" > CONTAINER_TAG_LATEST
 
     - name: Build and push the image DEV
       if: github.ref == 'refs/heads/dev'
