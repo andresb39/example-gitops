@@ -15,8 +15,8 @@ env:
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  CONTAINER_TAG_DEV: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev-$(git rev-parse --short HEAD)
-  CONTAINER_TAG_PRD: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod-$(git rev-parse --short HEAD)
+  CONTAINER_TAG_DEV: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev-${GITHUB_SHA::7}
+  CONTAINER_TAG_PRD: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod-${GITHUB_SHA::7}
   CONTAINER_TAG_LATEST: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:latest
 
 jobs:
