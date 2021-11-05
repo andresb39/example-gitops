@@ -41,8 +41,8 @@ jobs:
     - name: Set containers tags
       run: | 
         date -d "-5 hours" "+%Y%m%d_%H%M%S"   > DATE_TIME
-        echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev_$(cat DATE_TIME)-$(git rev-parse --short HEAD)" > CONTAINER_TAG_DEV
-        echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod_$(cat DATE_TIME)-$(git rev-parse --short HEAD)" > CONTAINER_TAG_PRD
+        echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:dev-$(git rev-parse --short HEAD)_$(cat DATE_TIME)" > CONTAINER_TAG_DEV
+        echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:prod-$(git rev-parse --short HEAD)_$(cat DATE_TIME)" > CONTAINER_TAG_PRD
         echo "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/lab-flux:latest" > CONTAINER_TAG_LATEST
 
     - name: Build and push the image DEV
@@ -90,7 +90,7 @@ jobs:
       run: |
         git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
         cd infra/overlays/dev
-        kustomize edit set image $CONTAINER_TAG_DEV
+        kustomize edit set image $(cat CONTAINER_TAG_DEV)
         cat kustomization.yaml
 
     - name: Update Prod resources
@@ -98,7 +98,7 @@ jobs:
       run: |
         git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
         cd infra/overlays/prod
-        kustomize edit set image $CONTAINER_TAG_PRD
+        kustomize edit set image $(cat CONTAINER_TAG_PRD)
         cat kustomization.yaml
 
     - name: Pushes to Infra Repo
