@@ -1,11 +1,17 @@
 # ci-cd.yml
-name: CI/CD Pipeline 
+name: Check + CI/CD   
 
 on:
   push:
     paths:
       - app/** 
     branches:
+      - master
+      - dev
+  pull_request:
+      paths:
+      - app/**   
+      branches:
       - master
       - dev
 
@@ -20,9 +26,29 @@ env:
 
 jobs:
 
-  build-and-push:
+  Sonarqube:
+    name: checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}   
+
+      - uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  ci:
     name: Build and Push
     runs-on: ubuntu-latest
+    needs: Sonarqube
+    if: github.event == 'push'
     
 
     steps:
@@ -65,10 +91,10 @@ jobs:
         docker push $CONTAINER_IMAGE:prod-${GITHUB_SHA::7}
         docker push $CONTAINER_TAG_LATEST
 
-  deploy:
+  cd:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: build-and-push
+    needs: ci
     env: 
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
