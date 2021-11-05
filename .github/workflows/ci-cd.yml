@@ -84,7 +84,7 @@ jobs:
         date -d "-5 hours" "+%Y%m%d_%H%M%S" > DATE_TIME
         docker pull $CONTAINER_TAG_LATEST || true
         docker build --pull \
-          -t $CONTAINER_IMAGE:prod$-{GITHUB_SHA::7} \
+          -t $CONTAINER_IMAGE:prod-${GITHUB_SHA::7} \
           -t $CONTAINER_TAG_LATEST ./app
 
         # Push image to AWS ECR
