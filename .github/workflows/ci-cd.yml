@@ -51,7 +51,8 @@ jobs:
         # Build and tag the image
         docker pull $CONTAINER_TAG_LATEST || true
         docker build --pull \
-          -t $CONTAINER_TAG_DEV ./app
+          -f app/Dockerfile
+          -t $CONTAINER_TAG_DEV .
 
         # Push image to AWS ECR
         docker push $CONTAINER_TAG_DEV
@@ -62,6 +63,7 @@ jobs:
         # Build and tag the image
         docker pull $CONTAINER_TAG_LATEST || true
         docker build --pull \
+          -f app/Dockerfile
           -t $CONTAINER_TAG_PRD \
           -t $CONTAINER_TAG_LATEST ./app
 
