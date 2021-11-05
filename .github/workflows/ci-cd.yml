@@ -35,7 +35,7 @@ jobs:
       
     - name: Set vars
       run: | 
-        echo  "lab-flux:$(git rev-parse --short HEAD)" >> $CONTAINER_IMAGE
+        export CONTAINER_IMAGE=$(echo "lab-flux:$(git rev-parse --short HEAD)")
         echo $CONTAINER_IMAGE
 
 #    - name: Configure AWS credentials
