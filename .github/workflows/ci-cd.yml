@@ -30,10 +30,12 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@master
+      env: 
+        CONTAINER_IMAGE: ""
       
     - name: Set vars
       run: | 
-        echo  "lab-flux:$(git rev-parse --short HEAD)" > CONTAINER_IMAGE
+        echo  "lab-flux:$(git rev-parse --short HEAD)" > $CONTAINER_IMAGE
         echo $CONTAINER_IMAGE
 
 #    - name: Configure AWS credentials
