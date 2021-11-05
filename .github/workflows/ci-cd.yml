@@ -51,11 +51,11 @@ jobs:
         # Build and tag the image
         docker pull $CONTAINER_TAG_LATEST || true
         docker build --pull \
-          -t $CONTAINER_TAG_DEV \
+          -t $(echo $CONTAINER_TAG_DEV) \
           ./app
 
         # Push image to AWS ECR
-        docker push $CONTAINER_TAG_DEV
+        docker push $(echo $CONTAINER_TAG_DEV)
     
     - name: Build and push the image PROD
       if: github.ref == 'refs/heads/master'
