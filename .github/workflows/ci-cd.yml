@@ -22,7 +22,7 @@ jobs:
 
       - name: Build an image from Dockerfile
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/mytest:${{ github.sha }} .
+          docker build -t ghcr.io/${{ github.repository }}/mytest:${{ github.sha }} ./app
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
