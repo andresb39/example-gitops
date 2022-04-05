@@ -8,15 +8,10 @@ on:
     branches:
       - master
       - dev
+      - trivy
 
 env:
-  AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-  AWS_DEFAULT_OUTPUT: json
-  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  CONTAINER_IMAGE: ${{ secrets.AWS_ECR }}
-  CONTAINER_TAG_LATEST: ${{ secrets.AWS_ECR }}:latest
+  IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/mytest
 
 jobs:
   ci:
@@ -27,83 +22,32 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_DEFAULT_REGION }}
+    - name: Login into registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
       
-    - name: Build and push the image DEV
-      if: github.ref == 'refs/heads/dev'
+    - name: Build and push
       run: |
-        # Build and tag the image
-        docker pull $CONTAINER_TAG_LATEST || true
-        docker build --pull \
-          -t $CONTAINER_IMAGE:dev-${GITHUB_SHA::7} ./app
+        docker build \
+          -t $IMAGE_ID:${GITHUB_SHA::7} \
+          ./app
 
         # Push image to AWS ECR
-        docker push $CONTAINER_IMAGE:dev-${GITHUB_SHA::7}
-    
-    - name: Build and push the image PROD
-      if: github.ref == 'refs/heads/master'
-      run: |
-        # Build and tag the image
-        date -d "-5 hours" "+%Y%m%d_%H%M%S" > DATE_TIME
-        docker pull $CONTAINER_TAG_LATEST || true
-        docker build --pull \
-          -t $CONTAINER_IMAGE:prod-${GITHUB_SHA::7} \
-          -t $CONTAINER_TAG_LATEST ./app
+        docker push $IMAGE_ID:${GITHUB_SHA::7}
 
-        # Push image to AWS ECR
-        docker push $CONTAINER_IMAGE:prod-${GITHUB_SHA::7}
-        docker push $CONTAINER_TAG_LATEST
-
-  cd:
-    name: Deploy
+  trivy:
+    name: Trivy Test
     runs-on: ubuntu-latest
-    needs: ci
-    env: 
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-    - name: Check out code
-      uses: actions/checkout@v2
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: $IMAGE_ID:${GITHUB_SHA::7}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
 
-    - name: Setup Kustomize
-      uses: imranismail/setup-kustomize@v1
-      with:
-        kustomize-version: "3.6.1"
-
-    - name: Update Dev resources
-      if : github.ref == 'refs/heads/dev'
-      run: |
-        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
-        cd infra/overlays/dev
-        kustomize edit set image $CONTAINER_IMAGE:dev-${GITHUB_SHA::7}
-        cat kustomization.yaml
-
-    - name: Update Prod resources
-      if: github.ref == 'refs/heads/master'
-      run: |
-        git clone https://andresb39:$GITHUB_TOKEN@github.com/andresb39/gitops-infra infra
-        cd infra/overlays/prod
-        kustomize edit set image $CONTAINER_IMAGE:prod-${GITHUB_SHA::7}
-        cat kustomization.yaml
-
-    - name: Pushes to Infra Repo
-      id: push_directory
-      uses: cpina/github-action-push-to-another-repository@main
-      env:
-        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-      with:
-        source-directory: 'infra'
-        destination-github-username: 'andresb39'
-        destination-repository-name: 'gitops-infra'
-        user-email: action@github.com
-        target-branch: master
-
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: 'trivy-results.sarif'
