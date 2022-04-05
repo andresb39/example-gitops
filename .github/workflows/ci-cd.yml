@@ -13,35 +13,26 @@ env:
   IMAGE_ID: ghcr.io/${{ github.repository }}/mytest
 
 jobs:
-  ci:
-    name: Build and Push
-    runs-on: ubuntu-latest
-
+  build:
+    name: Build
+    runs-on: ubuntu-18.04
     steps:
-    - name: Checkout
-      uses: actions/checkout@master
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Login into registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Build an image from Dockerfile
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/mytest:${{ github.sha }} .
 
-      
-    - name: Build and push
-      run: |
-        docker build \
-          -t $IMAGE_ID:${GITHUB_SHA::7} \
-          ./app
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ghcr.io/${{ github.repository }}/mytest:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
 
-        # Push image to AWS ECR
-        docker push $IMAGE_ID:${GITHUB_SHA::7}
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: 'trivy-results.sarif'
 
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: 'ghcr.io/andresb39/example-gitops/mytest:b90592f'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-
-    - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v1
-      with:
-        sarif_file: 'trivy-results.sarif'
