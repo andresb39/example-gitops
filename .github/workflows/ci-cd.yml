@@ -10,7 +10,7 @@ on:
       - trivy
 
 env:
-  IMAGE_ID: docker.pkg.github.com/${{ github.repository }}/mytest
+  IMAGE_ID: ghcr.io/${{ github.repository }}/mytest
 
 jobs:
   ci:
