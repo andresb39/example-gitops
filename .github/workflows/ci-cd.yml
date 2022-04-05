@@ -37,10 +37,10 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: $IMAGE_ID:${GITHUB_SHA::7}
+        image-ref: 'ghcr.io/${{ github.repository }}/mytest${GITHUB_SHA::7}'
         format: 'sarif'
         output: 'trivy-results.sarif'
-        
+
     - name: Upload Trivy scan results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v1
       with:
